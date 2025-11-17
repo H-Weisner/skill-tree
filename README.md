@@ -1,6 +1,6 @@
 # skill-tree
 
-This is a test project made by Harry Weisner applying for a job at Ping Identity for a software engineer role.
+This is a test project made by Harry Weisner applying for a job for a software engineer role.
 
 ## How to run
 
