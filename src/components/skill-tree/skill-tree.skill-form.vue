@@ -1,88 +1,71 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Field, FieldContent, FieldLabel } from '@/components/ui/field'
+import { reactive, watch } from 'vue'
 import { Badge } from '@/components/ui/badge'
-import { useSkillTreeStore, type SkillType } from '@/stores/skill-tree.store'
+import { Button } from '@/components/ui/button'
+import { DialogDescription, DialogTitle } from '@/components/ui/dialog'
+import { Field, FieldContent, FieldLabel } from '@/components/ui/field'
+import type { SkillTypeName } from '@/constants'
 
 const props = defineProps<{
-  createNode?: (data: {
-    name: string
-    description: string
-    cost?: number
-    level?: number
-    skillType: SkillType
-  }) => string | null
+  initialType: SkillTypeName | null
 }>()
 
-const store = useSkillTreeStore()
-
 const emit = defineEmits<{
-  nodeAdded: [nodeId: string]
+  submit: [data: { name: string; description: string; skillType: SkillTypeName }]
   cancel: []
 }>()
 
-// Computed properties to safely access currentNode (form should only show when currentNode exists)
-const currentNode = computed(() => {
-  if (!store.currentNode) {
-    // Return default values if currentNode is null (shouldn't happen when form is shown)
-    return {
-      name: '',
-      description: '',
-      cost: undefined,
-      level: undefined,
-      skillType: 'regular' as SkillType,
-      unlocked: false,
-    }
-  }
-  return store.currentNode
+// Local Form State
+const formData = reactive({
+  name: '',
+  description: '',
+  skillType: 'Regular Skill' as SkillTypeName,
 })
+
+// Reset form when initialType changes (dialog opens)
+watch(
+  () => props.initialType,
+  (newType) => {
+    if (newType) {
+      formData.skillType = newType
+      formData.name = ''
+      formData.description = ''
+    }
+  },
+  { immediate: true },
+)
 
 const handleSubmit = (e: Event) => {
   e.preventDefault()
-
-  if (!currentNode.value.name.trim()) {
+  if (!formData.name.trim()) {
     alert('Please enter a skill name')
     return
   }
 
-  // Use createNodeFromPendingDrop if available (from drag and drop), otherwise use store
-  let nodeId: string | null = null
-
-  if (props.createNode) {
-    nodeId = props.createNode({
-      name: currentNode.value.name.trim(),
-      description: currentNode.value.description.trim() || 'No description',
-      cost: currentNode.value.cost || undefined,
-      level: currentNode.value.level || undefined,
-      skillType: currentNode.value.skillType,
-    })
-  }
-
-  if (nodeId) {
-    emit('nodeAdded', nodeId)
-  }
-}
-
-const handleCancel = () => {
-  emit('cancel')
+  emit('submit', {
+    name: formData.name.trim(),
+    description: formData.description.trim() || '',
+    skillType: formData.skillType,
+  })
 }
 </script>
 
 <template>
-  <form v-if="currentNode" @submit="handleSubmit" class="space-y-4 p-4 text-foreground">
-    <Badge variant="outline">{{ currentNode.skillType }}</Badge>
-    <h2 class="text-xl font-bold mb-4">Add New Skill</h2>
+  <Badge variant="outline">{{ formData.skillType }}</Badge>
+  <DialogTitle>Add New Skill</DialogTitle>
+  <DialogDescription>Fill in the details for your new skill.</DialogDescription>
+
+  <form @submit="handleSubmit" class="space-y-4 mt-4 text-foreground">
     <Field>
-      <FieldLabel for="name">Skill Name<span class="text-red-500">*</span> </FieldLabel>
+      <FieldLabel for="name">Skill Name<span class="text-red-500">*</span></FieldLabel>
       <FieldContent>
         <input
           id="name"
-          v-model="currentNode.name"
+          v-model="formData.name"
           type="text"
           required
           class="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          placeholder="e.g., JavaScript Basics"
+          placeholder="e.g., Fire Ball"
         />
       </FieldContent>
     </Field>
@@ -92,46 +75,17 @@ const handleCancel = () => {
       <FieldContent>
         <textarea
           id="description"
-          v-model="currentNode.description"
+          v-model="formData.description"
           rows="3"
           class="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           placeholder="Describe this skill..."
         />
       </FieldContent>
     </Field>
-    <div class="grid grid-cols-2 gap-4">
-      <Field>
-        <FieldLabel for="cost">Cost (optional)</FieldLabel>
-        <FieldContent>
-          <input
-            id="cost"
-            v-model.number="currentNode.cost"
-            type="number"
-            min="0"
-            class="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="0"
-          />
-        </FieldContent>
-      </Field>
-
-      <Field>
-        <FieldLabel for="level">Level (optional)</FieldLabel>
-        <FieldContent>
-          <input
-            id="level"
-            v-model.number="currentNode.level"
-            type="number"
-            min="1"
-            class="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            placeholder="1"
-          />
-        </FieldContent>
-      </Field>
-    </div>
 
     <div class="flex gap-2 pt-4">
-      <Button type="submit" class="flex-1"> Add Skill </Button>
-      <Button type="button" variant="outline" @click="handleCancel" class="flex-1">Cancel</Button>
+      <Button type="submit" class="flex-1">Add Skill</Button>
+      <Button type="button" variant="outline" @click="emit('cancel')" class="flex-1">Cancel</Button>
     </div>
   </form>
 </template>

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { DialogContentEmits, DialogContentProps } from 'reka-ui'
-import type { HTMLAttributes } from 'vue'
+import { cn } from '@/lib/utils'
 import { reactiveOmit } from '@vueuse/core'
 import { X } from 'lucide-vue-next'
+import type { DialogContentEmits, DialogContentProps } from 'reka-ui'
 import {
   DialogClose,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogPortal,
   useForwardPropsEmits,
 } from 'reka-ui'
-import { cn } from '@/lib/utils'
+import type { HTMLAttributes } from 'vue'
 
 defineOptions({
   inheritAttrs: false,
@@ -32,7 +32,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       <DialogContent
         :class="
           cn(
-            'relative z-50 grid w-full max-w-lg my-8 gap-4 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full',
+            'relative z-50 grid w-full max-w-lg my-8 gap-3 border border-border bg-background p-6 shadow-lg duration-200 sm:rounded-lg md:w-full',
             props.class,
           )
         "

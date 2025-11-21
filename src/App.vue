@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useColorMode } from '@vueuse/core'
 import { SkillTree } from '@/components/skill-tree'
-import { Toaster } from './components/ui/toast'
+import { Toaster } from '@/components/ui/toast'
 
 // Initialize color mode early to prevent flash
 useColorMode({
@@ -16,10 +16,8 @@ useColorMode({
 </script>
 
 <template>
-  <div>
-    <main class="w-full h-full">
-      <Toaster />
-    </main>
+  <div class="w-full h-screen">
+    <Toaster />
     <SkillTree />
   </div>
 </template>
