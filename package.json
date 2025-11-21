@@ -30,13 +30,17 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.554.0",
+    "motion-v": "^1.7.4",
     "pinia": "^3.0.3",
     "reka-ui": "^2.6.0",
     "tailwind-merge": "^3.4.0",
+    "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.22",
     "vue-sonner": "^2.0.9"
   },
   "devDependencies": {
+    "@iconify-json/radix-icons": "^1.2.5",
+    "@iconify/vue": "^5.0.0",
     "@prettier/plugin-oxc": "^0.0.4",
     "@tailwindcss/vite": "^4.1.17",
     "@tsconfig/node22": "^22.0.2",

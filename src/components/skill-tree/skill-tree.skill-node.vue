@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Handle, Position, type NodeProps } from '@vue-flow/core'
 import type { SkillNodeData } from '@/stores/skill-tree.store'
+import { Handle, Position, type NodeProps } from '@vue-flow/core'
 import { Lock, Unlock } from 'lucide-vue-next'
+import { computed } from 'vue'
 
 interface Props extends NodeProps {
   data: SkillNodeData
@@ -10,13 +10,32 @@ interface Props extends NodeProps {
 
 const props = defineProps<Props>()
 
+// Map VueFlow node type to handle behavior
+// VueFlow node type comes from props.type (set when node is created)
+// 'start' -> 'input' behavior (no target handle)
+// 'capstone' -> 'output' behavior (no source handle)
+// 'regular' -> 'default' behavior (both handles)
+const handleType = computed<'input' | 'output' | 'default'>(() => {
+  // Use the VueFlow node type (props.type) which is 'start', 'regular', or 'capstone'
+  const nodeType = props.type as 'start' | 'regular' | 'capstone'
+  switch (nodeType) {
+    case 'start':
+      return 'input'
+    case 'capstone':
+      return 'output'
+    case 'regular':
+    default:
+      return 'default'
+  }
+})
+
 const nodeClasses = computed(() => {
   const base =
     'px-4 py-3 rounded-lg border-2 shadow-lg min-w-[200px] transition-all bg-card text-card-foreground'
   if (props.data.unlocked) {
-    return `${base} border-secondary bg-secondary/20 text-secondary-foreground`
+    return `${base} border-secondary bg-secondary text-secondary-foreground`
   }
-  return `${base} border-border bg-muted text-muted-foreground opacity-90`
+  return `${base} border-border bg-muted text-muted-foreground opacity-50`
 })
 
 const iconClasses = computed(() => {
@@ -26,7 +45,12 @@ const iconClasses = computed(() => {
 
 <template>
   <div :class="nodeClasses">
-    <Handle type="target" :position="Position.Top" class="bg-blue-500!" />
+    <Handle
+      v-if="handleType !== 'input'"
+      type="target"
+      :position="Position.Top"
+      class="bg-green-500!"
+    />
 
     <div class="flex items-start gap-2">
       <component
@@ -43,6 +67,11 @@ const iconClasses = computed(() => {
       </div>
     </div>
 
-    <Handle type="source" :position="Position.Bottom" class="bg-blue-500!" />
+    <Handle
+      v-if="handleType !== 'output'"
+      type="source"
+      :position="Position.Bottom"
+      class="bg-blue-500!"
+    />
   </div>
 </template>

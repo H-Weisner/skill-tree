@@ -1,24 +1,35 @@
+import { type Edge, type Node, MarkerType } from '@vue-flow/core'
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { Node, Edge } from '@vue-flow/core'
+import { computed, ref } from 'vue'
+
+export type SkillType = 'Skill Tree Start' | 'Regular Skill' | 'Capstone Skill'
 
 export interface SkillNodeData {
   name: string
   description: string
   cost?: number
   level?: number
+  icon?: string
   unlocked: boolean
+  skillType: SkillType
 }
 
 export interface SkillNode extends Node {
   data: SkillNodeData
 }
 
-const STORAGE_KEY = 'skill-tree-data'
+// const STORAGE_KEY = 'skill-tree-data'
 
 export const useSkillTreeStore = defineStore('skillTree', () => {
-  const nodes = ref<Node[]>([])
+  const nodes = ref<SkillNode[]>([])
   const edges = ref<Edge[]>([])
+  const currentNode = ref<SkillNodeData | null>(null)
+  const setCurrentNode = (node: SkillNodeData) => {
+    currentNode.value = node
+  }
+  const clearCurrentNode = () => {
+    currentNode.value = null
+  }
   const nextNodeId = ref(1)
 
   const unlockedNodes = computed(() =>
@@ -34,16 +45,15 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
     const node = nodes.value.find((n) => n.id === nodeId)
     if (!node) return false
 
-    const nodeData = node.data as SkillNodeData
-    if (nodeData.unlocked) return true
+    if (node.data.unlocked) return true
 
     // Find all prerequisite nodes (nodes that have edges pointing to this node)
-    const prerequisiteEdges = edges.value.filter((edge) => edge.target === nodeId)
+    const edgesPointingToNode = edges.value.filter((edge) => edge.target === nodeId)
 
-    if (prerequisiteEdges.length === 0) return true // No prerequisites
+    if (edgesPointingToNode.length === 0) return true // No prerequisites
 
     // Check if all prerequisites are unlocked
-    return prerequisiteEdges.every((edge) => {
+    return edgesPointingToNode.every((edge) => {
       const sourceNode = nodes.value.find((n) => n.id === edge.source)
       return sourceNode ? (sourceNode.data as SkillNodeData).unlocked : false
     })
@@ -80,19 +90,23 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
     return false
   }
 
-  // Actions
-  const addNode = (data: Omit<SkillNodeData, 'unlocked'>) => {
-    const newNode: Node = {
+  // Add node from drag and drop (with position)
+  const addNode = (
+    data: Omit<SkillNodeData, 'unlocked'>,
+    type: string,
+    position: { x: number; y: number },
+  ) => {
+    const newNode: SkillNode = {
       id: `skill-${nextNodeId.value++}`,
-      type: 'skill',
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
+      type,
+      position,
       data: {
         ...data,
         unlocked: false,
       },
     }
     nodes.value.push(newNode)
-    saveToLocalStorage()
+    // saveToLocalStorage()
     return newNode.id
   }
 
@@ -100,7 +114,7 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
     const node = nodes.value.find((n) => n.id === nodeId)
     if (node) {
       node.data = { ...node.data, ...updates }
-      saveToLocalStorage()
+      // saveToLocalStorage()
     }
   }
 
@@ -108,18 +122,17 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
     nodes.value = nodes.value.filter((n) => n.id !== nodeId)
     // Remove all edges connected to this node
     edges.value = edges.value.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
-    saveToLocalStorage()
+    // saveToLocalStorage()
   }
 
   const deleteAllNodes = () => {
     nodes.value = []
     edges.value = []
     nextNodeId.value = 1
-    saveToLocalStorage()
+    // saveToLocalStorage()
   }
 
   const addEdge = (sourceId: string, targetId: string): { success: boolean; error?: string } => {
-    // Check if edge already exists
     const edgeExists = edges.value.some(
       (edge) => edge.source === sourceId && edge.target === targetId,
     )
@@ -138,15 +151,38 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
       target: targetId,
       type: 'smoothstep',
       animated: false,
+
+      // Use Tailwind class for the line color (Safest method)
+      class: 'stroke-primary',
+
+      style: {
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        strokeMiterlimit: 10,
+        strokeDasharray: 0,
+        strokeDashoffset: 0,
+        strokeOpacity: 1,
+        strokeWidth: 2,
+        strokeColor: 'hsl(var(--primary))',
+      },
+
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        // Try without 'hsl' wrapper first.
+        // If using shadcn and this is black, change to: 'hsl(var(--primary))'
+        color: 'var(--primary)',
+        width: 20,
+        height: 20,
+      },
     }
     edges.value.push(newEdge)
-    saveToLocalStorage()
+    // saveToLocalStorage()
     return { success: true }
   }
 
   const deleteEdge = (edgeId: string) => {
     edges.value = edges.value.filter((e) => e.id !== edgeId)
-    saveToLocalStorage()
+    // saveToLocalStorage()
   }
 
   const unlockNode = (nodeId: string): { success: boolean; error?: string } => {
@@ -159,7 +195,7 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
       const nodeData = node.data as SkillNodeData
       if (!nodeData.unlocked) {
         nodeData.unlocked = true
-        saveToLocalStorage()
+        // saveToLocalStorage()
         return { success: true }
       }
     }
@@ -171,7 +207,7 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
     if (node) {
       const nodeData = node.data as SkillNodeData
       nodeData.unlocked = false
-      saveToLocalStorage()
+      // saveToLocalStorage()
     }
   }
 
@@ -180,60 +216,32 @@ export const useSkillTreeStore = defineStore('skillTree', () => {
       const nodeData = node.data as SkillNodeData
       nodeData.unlocked = false
     })
-    saveToLocalStorage()
+    // saveToLocalStorage()
   }
-
-  // Persistence
-  const saveToLocalStorage = () => {
-    try {
-      const data = {
-        nodes: nodes.value,
-        edges: edges.value,
-        nextNodeId: nextNodeId.value,
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-    } catch (error) {
-      console.error('Failed to save to localStorage:', error)
-    }
-  }
-
-  const loadFromLocalStorage = () => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const data = JSON.parse(stored)
-        nodes.value = data.nodes || []
-        edges.value = data.edges || []
-        nextNodeId.value = data.nextNodeId || 1
-      }
-    } catch (error) {
-      console.error('Failed to load from localStorage:', error)
-    }
-  }
-
-  // Initialize
-  loadFromLocalStorage()
 
   return {
-    // State
+    // curr state
     nodes,
     edges,
-    // Computed
+    //current node
+    currentNode,
+    setCurrentNode,
+    clearCurrentNode,
+    // locked/unlocked nodes
     unlockedNodes,
     lockedNodes,
-    // Methods
+    unlockNode,
+    lockNode,
     canUnlock,
-    wouldCreateCycle,
+    // node crud
     addNode,
     updateNode,
     deleteNode,
+    deleteAllNodes,
+    // edge crud
+    wouldCreateCycle,
     addEdge,
     deleteEdge,
-    unlockNode,
-    lockNode,
     resetAll,
-    deleteAllNodes,
-    saveToLocalStorage,
-    loadFromLocalStorage,
   }
 })

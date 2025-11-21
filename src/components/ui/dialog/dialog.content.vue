@@ -5,7 +5,7 @@ import { reactiveOmit } from '@vueuse/core'
 import { X } from 'lucide-vue-next'
 import { DialogClose, DialogContent, DialogPortal, useForwardPropsEmits } from 'reka-ui'
 import { cn } from '@/lib/utils'
-import DialogOverlay from './DialogOverlay.vue'
+import DialogOverlay from './dialog.overlay.vue'
 
 defineOptions({
   inheritAttrs: false,

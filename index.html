@@ -2,20 +2,9 @@
 <html lang="">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/burst.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
-    <script>
-      ;(function () {
-        const theme = localStorage.getItem('theme') || 'system'
-        const isDark =
-          theme === 'dark' ||
-          (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        if (isDark) {
-          document.documentElement.classList.add('dark')
-        }
-      })()
-    </script>
+    <title>Harry's Skill Tree</title>
   </head>
   <body>
     <div id="app"></div>
