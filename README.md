@@ -7,7 +7,7 @@ This is a test project made by Harry Weisner applying for a job for a software e
 1. Run `pnpm i` to install deps
 2. Run `pnpm dev`, you will find the project on [port 5173](http://localhost:5173/)
 3. Add skills by drag & dropping them from the bottom onto the canvas
-4. Connect nodes by dragging from the blue circle nodes to other blue circle nodes
+4. Connect nodes by dragging from the blue circle nodes to other green circle nodes
 5. Click nodes to unlock (if prerequisites are met)
 6. Data auto-saves to localStorage
 
