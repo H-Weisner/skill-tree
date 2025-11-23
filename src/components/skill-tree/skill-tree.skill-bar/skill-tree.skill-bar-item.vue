@@ -82,7 +82,7 @@ const handleDragStart = (e: DragEvent) => {
   >
     <div
       v-if="item.type !== 'start'"
-      class="absolute top-0 w-6 h-1 rounded-b-sm bg-chart-5 opacity-80"
+      class="absolute top-0 w-6 h-1 rounded-b-sm bg-green-500 opacity-80"
     />
 
     <span
@@ -95,7 +95,7 @@ const handleDragStart = (e: DragEvent) => {
     </span>
     <div
       v-if="item.type !== 'capstone'"
-      class="absolute bottom-0 w-6 h-1 rounded-t-sm bg-chart-5 opacity-80"
+      class="absolute bottom-0 w-6 h-1 rounded-t-sm bg-blue-500 opacity-80"
     />
   </div>
 </template>

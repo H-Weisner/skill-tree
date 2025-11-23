@@ -47,7 +47,7 @@ const iconClasses = computed(() => {
       :connectable-start="false"
       :connectable-end="true"
       :position="Position.Top"
-      class="bg-chart-5!"
+      class="bg-green-500! border-secondary-foreground!"
     />
     <div class="flex items-center gap-2">
       <div class="flex-1">
@@ -65,7 +65,7 @@ const iconClasses = computed(() => {
       :connectable-start="true"
       :connectable-end="false"
       :position="Position.Bottom"
-      class="bg-chart-5!"
+      class="bg-blue-500! border-secondary-foreground!"
     />
   </div>
 </template>
