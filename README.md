@@ -11,7 +11,7 @@ This is a test project made by Harry Weisner applying for a job for a software e
    - You cannot create connections starting from green nodes, only blue, it is prevented
    - You cannot create circular dependencies, it is prevented
 6. Click nodes to unlock them.
-   - Only "Skill Tree Star"t nodes can be unlocked with no prerequisite nodes
+   - Only "Skill Tree Start" nodes can be unlocked with no prerequisite nodes
    - Regular skills and capstone skills require a previous unlocked skill to be unlocked
    - I called the final skills "capstone skills", as that's what they're generally called in the video game series Borderlands
 8. Data auto-saves to localStorage, allowing you to refresh the page etc.
